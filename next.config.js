@@ -1,7 +1,9 @@
 module.exports = {
-    reactStrictMode: true,
-    webpack(config) {
-      return config
-    },
-  }
-  
+  webpack: (config) => {
+    config.resolve = {
+      ...config.resolve,
+      fullySpecified: false, // ESM 문제 해결
+    };
+    return config;
+  },
+};
