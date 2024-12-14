@@ -4,7 +4,7 @@ import 'antd/dist/reset.css'; // Ant Design CSS 불러오기
 
 const Toggle = () => {
   return (
-    <div style={{ margin: '20px' }}>
+    <div style={{ margin: '8px' }}>
       <style>
         {`
           /* 기본 Switch 스타일 */

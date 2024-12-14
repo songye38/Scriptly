@@ -1,10 +1,10 @@
 import React from "react";
 
-const ProjectName = () => {
+const ProjectName = ({title}) => {
   return (
     <div
       style={{
-        width: "100%",
+        width: "305px",
         height: "100%",
         paddingTop: 10,
         paddingBottom: 30,
@@ -38,7 +38,7 @@ const ProjectName = () => {
             wordWrap: "break-word",
           }}
         >
-          프로젝트 제목이 들어갑니다.
+          {title}
         </div>
       </div>
     </div>
