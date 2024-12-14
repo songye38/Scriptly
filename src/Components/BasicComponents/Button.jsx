@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const Button = () => {
+const Button = ({onClick,title}) => {
   // 호버 상태를 관리하는 state
   const [isHovered, setIsHovered] = useState(false);
 
@@ -21,6 +21,7 @@ const Button = () => {
       }}
       onMouseEnter={() => setIsHovered(true)}  // 마우스가 들어가면 호버 상태 활성화
       onMouseLeave={() => setIsHovered(false)}  // 마우스가 나가면 호버 상태 비활성화
+      onClick={onClick}
     >
       <div
         style={{
@@ -32,7 +33,7 @@ const Button = () => {
           wordWrap: 'break-word',
         }}
       >
-        전체 노트로 정리하기
+        {title}
       </div>
     </div>
   );

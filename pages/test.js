@@ -1,5 +1,6 @@
 // /pages/test.js
 import React from 'react';
+import { useState } from 'react';
 import UserProfile from '../src/Components/BasicComponents/UserProfile.jsx';
 import MainTab from '../src/Components/BasicComponents/MainTab.jsx';
 import ProjectTab from '../src/Components/BasicComponents/ProjectTab.jsx';
@@ -14,6 +15,8 @@ import ResultBasic from '../src/Components/ComplexComponents/ResultBasic.jsx';
 import Header from '../src/Components/ComplexComponents/Header.jsx';
 import ResultSummary from '../src/Components/ComplexComponents/ResultSummary.jsx';
 import Note from '../src/Components/ComplexComponents/Note.jsx';
+import MyInput from '../src/Components/BasicComponents/MyInput.jsx';
+import InputModal from '../src/Components/BasicComponents/InputModal.jsx';
 
 
 const TestPage = () => {
@@ -23,13 +26,25 @@ const TestPage = () => {
       '두 번째 내용: 컴포넌트와 상태를 이해하고 있습니다.',
       '세 번째 내용: 더 많은 예제를 통해 실력을 쌓아가고 있습니다.',
     ];
+
+    const [inputValue, setInputValue] = useState('');
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value);
+    };
     return (
       <div style={{ width: '100%', height: '100%', padding: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
           <Header />
+          <InputModal />
+          <MyInput
+                value={inputValue}
+                onChange={handleInputChange}
+                placeholder="나만의 Input"
+            />
           <UserProfile /> 
           <MainTab />
           <ProjectTab />
-          <Button />
+          <Button title="기본버튼"/>
           <Toggle />
           <CheckBox />
           <ExpandButton />

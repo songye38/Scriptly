@@ -5,6 +5,7 @@
 
 # User-specific files
 .env
+.env.local
 *.rsuser
 *.suo
 *.user
