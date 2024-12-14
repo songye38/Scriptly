@@ -3,29 +3,41 @@ import Header from '../src/Components/ComplexComponents/Header';
 import MainTab from '../src/Components/BasicComponents/MainTab';
 import InputModal from '../src/Components/BasicComponents/InputModal';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const Home = ({ posts, projects }) => {
   const [projectName, setProjectName] = useState(''); //InputModal에서 받은 프로젝트 이름
-
+  const router = useRouter();
   //supabase에 프로젝트 이름을 저장하는 함수
+
   const createProject = async (name) => {
     try {
+      // 프로젝트 삽입
       const { data, error } = await supabase
-        .from('projects') // projects 테이블에 데이터 삽입
-        .insert([
-          { name, description: '새 프로젝트' } // 프로젝트 이름과 기본 설명 추가
-        ]);
-
+        .from('projects')
+        .insert([{ name, description: '새 프로젝트' }])
+        .select();
+  
       if (error) {
-        throw new Error(error.message);
+        console.error('Error code:', error.code);    // 오류 코드 출력
+        console.error('Error details:', error.details); // 오류 세부 사항 출력
+        throw new Error(error.message);  // 에러 발생 시 메시지 출력
       }
-
+  
       console.log('프로젝트 생성 성공:', data);
+  
+      const project = data[0]; 
+  
+      // 동적으로 해당 프로젝트의 페이지로 이동
+      router.push(`/projects/${project.id}`);
     } catch (error) {
       console.error('프로젝트 생성 실패:', error.message);
     }
   };
-
+  
+  
+  
+  
   // InputModal에서 프로젝트명을 받은 후 호출
   const handleCreateProject = (name) => {
     setProjectName(name); // 프로젝트명 상태 업데이트
@@ -65,11 +77,10 @@ export const getServerSideProps = async () => {
 
   console.log("Fetched posts:", posts);
   console.log("Fetched projects:", projects);
-
   return {
     props: {
       posts,
-      projects,
+      projects
     },
   };
 };
