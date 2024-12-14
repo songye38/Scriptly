@@ -7,7 +7,7 @@ const Button = ({onClick,title}) => {
   return (
     <div
       style={{
-        width: '100%',
+        width: 'auto',
         height: '100%',
         padding: '10px',
         background: '#EAEEFD',

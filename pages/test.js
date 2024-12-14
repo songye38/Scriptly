@@ -41,8 +41,7 @@ const TestPage = () => {
                 onChange={handleInputChange}
                 placeholder="나만의 Input"
             />
-          <UserProfile /> 
-          <MainTab />
+          <UserProfile />
           <ProjectTab />
           <Button title="기본버튼"/>
           <Toggle />
