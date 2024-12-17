@@ -1,6 +1,6 @@
 import React from "react";
 
-const UserMsg = ({ text }) => {
+const UserMsg = ({ msg }) => {
   return (
     <div
       style={{
@@ -30,7 +30,7 @@ const UserMsg = ({ text }) => {
           textAlign:"left", // 
         }}
       >
-        {text}
+        {msg}
       </div>
     </div>
   );
