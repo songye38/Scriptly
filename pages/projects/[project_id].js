@@ -17,25 +17,59 @@ const ProjectDetail = ({ project, studyQuestions }) => {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '100vh', alignItems: 'flex-start', gap: '20px',overflow:'hidden' }}>
-    
-            {/* [왼쪽 사이드]프로젝트 제목과 노트 섹션 */}
-            <div style={{ width: '20%', height: '100%', display: 'flex', flexDirection: 'row', borderRight: '1px solid #ccc' }}>
+        <div style={{}}>
+            <div style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            width: '100%', 
+            height: '100vh', 
+            alignItems: 'flex-start', 
+            gap: '20px', 
+            boxSizing: 'border-box'  // 모든 요소에 box-sizing을 border-box로 설정
+          }}>
+              
+              {/* [왼쪽 사이드] 프로젝트 제목과 노트 섹션 */}
+              <div style={{
+                width: '20%', 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'row', 
+                borderRight: '1px solid #ccc',
+                boxSizing: 'border-box'  // 왼쪽 영역에도 box-sizing 적용
+              }}>
                 <ProjectName title={project.name} />
-            </div>
-            
-            {/* [오른쪽 사이드] 오른쪽의 대화 섹션 */}
-            <div style={{ display: 'flex', flexDirection: 'column', width: '80%', position: 'relative',height:'100vh' }}>
-                {/* (섹션1)상단의 헤더 부분 */}
+              </div>
+                      
+              {/* [오른쪽 사이드] 오른쪽의 대화 섹션 */}
+              <div style={{
+                display: 'flex', 
+                flexDirection: 'column', 
+                overflowY:'hidden',
+                width: '80%', 
+                height: '100vh', 
+                boxSizing: 'border-box',  // 오른쪽 영역에도 box-sizing 적용
+
+              }}>
+                {/* (섹션1) 상단의 헤더 부분 */}
                 <ProjectHeader />
-
-                {/* (섹션2)대화 섹션 */}
-                <div style={{marginLeft:'120px',marginRight:'120px'}}>
-                    <ChatComponent projectID = {project.id} studyQuestions={studyQuestions}/>
+          
+                {/* (섹션2) 대화 섹션 */}
+                <div style={{
+                    width: '100%',
+                    padding : '20px',
+                    flex: 1, 
+                    overflowY: 'auto',
+                    boxSizing: 'border-box',  // 대화 영역에도 box-sizing 적용
+                }}>
+                  <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
                 </div>
+              </div>
+          </div>
 
-            </div>
         </div>
+
+          
+
     );
 };
 
@@ -62,8 +96,6 @@ export const getServerSideProps = async ({ params }) => {
       return { notFound: true };  // 프로젝트가 없으면 404 페이지 표시
     }
 
-    console.log('study_questions의 정체',)
-  
     // 데이터 반환
     return {
       props: {
@@ -71,8 +103,6 @@ export const getServerSideProps = async ({ params }) => {
         studyQuestions: projectWithQuestions[0]?.study_questions || [],  // 해당 프로젝트의 study_questions 배열을 반환
       },
     };
-  };
+};
   
-  
-
 export default ProjectDetail;
