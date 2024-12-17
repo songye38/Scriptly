@@ -9,6 +9,8 @@
   
   /* 전역 기본 스타일 */
   body {
-    margin: 20px; /* 원하는 padding 값으로 설정 */
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-top: 20px; /* 원하는 padding 값으로 설정 */
     font-family: 'Pretendard-Regular', sans-serif;
   }

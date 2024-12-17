@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch } from 'antd';
 import 'antd/dist/reset.css'; // Ant Design CSS 불러오기
 
-const Toggle = () => {
+const Toggle = ({ checked, onChange }) => {
   return (
     <div style={{ margin: '8px' }}>
       <style>
@@ -24,7 +24,7 @@ const Toggle = () => {
           }
         `}
       </style>
-      <Switch />
+      <Switch checked={checked} onChange={onChange} />
     </div>
   );
 };

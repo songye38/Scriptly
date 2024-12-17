@@ -2,8 +2,10 @@ import React from 'react';
 import Checkbox from 'antd/es/checkbox/Checkbox';
 import ExpandButton from '../BasicComponents/ExpandButton';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'; // 마크다운 확장 기능 (표, 체크박스 등)
 
-const ResultSummary = ({ title, content }) => {
+const ResultSummary = ({ question }) => {
   // 상태 관리: 내용이 보이는지 여부를 관리
   const [isContentVisible, setIsContentVisible] = useState(false);
 
@@ -24,7 +26,7 @@ const ResultSummary = ({ title, content }) => {
         flexDirection: 'column',
         justifyContent: 'flex-end',
         alignItems: 'flex-end',
-        gap: 14,
+        gap: '8px',
         display: 'inline-flex',
       }}
     >
@@ -53,14 +55,14 @@ const ResultSummary = ({ title, content }) => {
             style={{
               flex: '1 1 0',
               color: 'black',
-              fontSize: 20,
+              fontSize: '16px',
               fontFamily: 'Pretendard',
               fontWeight: '500',
-              lineHeight: 23,
+              lineHeight: '23px',
               wordWrap: 'break-word',
             }}
           >
-            {title} {/* title prop 사용 */}
+            {question?.answer_title} {/* title prop 사용 */}
           </div>
           {/* 상태 표시 */}
           <div
@@ -90,7 +92,7 @@ const ResultSummary = ({ title, content }) => {
             wordWrap: 'break-word',
           }}
         >
-          {content} {/* content prop 사용 */}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{question?.answer_content}</ReactMarkdown>
         </div>
       )}
     </div>
