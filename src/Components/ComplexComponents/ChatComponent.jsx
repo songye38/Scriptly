@@ -14,6 +14,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [isDetailedView, setIsDetailedView] = useState(true); // 토글 상태
   const messageContainerRef = useRef(null); // 메시지와 답변을 감싸는 div에 대한 ref
+  
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -33,7 +34,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
     return { title, content };
   };
 
-  const handleSubmit = async () => {
+  const handleAskQuestion = async () => {
     if (!inputValue) return;
 
     const userMessage = { role: "user", content: inputValue };
@@ -132,6 +133,27 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   // 대화모드 off일때
   const renderSummaryView = () => (
     <>
+    <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              gap: "6px",
+              marginBottom: "20px",
+            }}
+          >
+        <MyInput
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="제목을 입력해주세요."
+                />
+        <Button
+            onClick={handleAskQuestion}
+            title={"OK"}
+            type="primary"
+            disabled={loading || !isDetailedView} // 이 라인도 필요 없지만 유지 가능
+        />
+    </div>
       {/* Study Questions */}
       {studyQuestions.map((question, idx) => (
         <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
@@ -166,7 +188,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           display: "flex",
           position: "absolute",
           bottom: "20px",
-          flexDirection: "column",
+          flexDirection: "row",
           gap: "8px",
         }}
       >
@@ -178,7 +200,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
               display: "flex",
               position: "absolute",
               bottom: "20px",
-              flexDirection: "column",
+              flexDirection: "row",
               gap: "8px",
               marginBottom: "20px",
             }}
@@ -189,7 +211,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
               placeholder="Ask a question..."
             />
             <Button
-              onClick={handleSubmit}
+              onClick={handleAskQuestion}
               title={loading ? "Loading..." : "Ask"}
               type="primary"
               disabled={loading || !isDetailedView} // 이 라인도 필요 없지만 유지 가능

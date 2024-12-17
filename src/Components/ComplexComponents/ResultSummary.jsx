@@ -11,7 +11,6 @@ const ResultSummary = ({ question }) => {
 
   // 내용 보이기/숨기기 토글 함수
   const toggleContentVisibility = () => {
-    console.log("버튼이 눌립니다.")
     setIsContentVisible(prevState => !prevState);
   };
 
@@ -81,6 +80,14 @@ const ResultSummary = ({ question }) => {
 
       {/* 내용 토글 */}
       {isContentVisible && (
+        <>
+        <div
+            style={{
+                width: '100%',
+                borderTop: '1px solid #ccc',  // 선 추가
+                margin: '10px 0', // 위아래 간격 설정
+            }}
+        ></div>
         <div
           style={{
             alignSelf: 'stretch',
@@ -94,6 +101,8 @@ const ResultSummary = ({ question }) => {
         >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{question?.answer_content}</ReactMarkdown>
         </div>
+        </>
+        
       )}
     </div>
   );
