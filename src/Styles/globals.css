@@ -1,4 +1,7 @@
 
+/* BUG : CSS 로드 문제
+ */
+
 /* Pretendard-Regular 폰트 로드 */
 @font-face {
     font-family: 'Pretendard-Regular';

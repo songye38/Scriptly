@@ -2,6 +2,8 @@
 import React from 'react';
 import { Input } from 'antd';
 
+// FIXME : 버튼을 인풋창 안으로 넣기
+
 const MyInput = ({ value, onChange, placeholder, disabled }) => {
   return (
     <Input.TextArea

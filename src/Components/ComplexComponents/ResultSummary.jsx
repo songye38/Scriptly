@@ -5,6 +5,8 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm'; // 마크다운 확장 기능 (표, 체크박스 등)
 
+// TODO : 새로운 컬렉션 생성
+
 const ResultSummary = ({ question }) => {
   // 상태 관리: 내용이 보이는지 여부를 관리
   const [isContentVisible, setIsContentVisible] = useState(false);

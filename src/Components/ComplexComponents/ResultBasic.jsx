@@ -15,11 +15,15 @@ const ResultBasic = ({ question }) => {
           </div>
         </div>
         <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: 4, display: 'inline-flex' }}>
+          {/*TODO : 별표 기능
+           */}
           <img 
             style={{ width: '16px', height: '16px' }} 
             src="/images/star.svg" 
             alt="Logo img" 
           />
+          {/* TODO : 고정 기능
+           */}
           <img 
             style={{ width: '16px', height: '16px' }} 
             src="/images/pin.svg" 
