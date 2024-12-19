@@ -18,14 +18,14 @@ const ResultBasic = ({ question }) => {
           {/*TODO : 별표 기능
            */}
           <img 
-            style={{ width: '16px', height: '16px' }} 
+            style={{ width: '20px', height: '20px' }} 
             src="/images/star.svg" 
             alt="Logo img" 
           />
           {/* TODO : 고정 기능
            */}
           <img 
-            style={{ width: '16px', height: '16px' }} 
+            style={{ width: '20px', height: '20px' }} 
             src="/images/pin.svg" 
             alt="Logo img" 
           />

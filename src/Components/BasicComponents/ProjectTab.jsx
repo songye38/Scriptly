@@ -11,12 +11,12 @@ const ProjectTab = () => {
       </div>
 
       {/* 복습 탭 */}
-      <div style={{ paddingLeft: 8, paddingRight: 8, paddingTop: 6, paddingBottom: 6, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+      {/* <div style={{ paddingLeft: 8, paddingRight: 8, paddingTop: 6, paddingBottom: 6, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
         <div style={{ color: '#999999', fontSize: 14, fontFamily: 'Pretendard', fontWeight: '500', lineHeight: '23px', wordWrap: 'break-word' }}>
           복습
         </div>
-      </div>
-
+      </div> */}
+      {/* TODO : 정리탭에 에디터 추가하기*/}
       {/* 정리 탭 */}
       <div style={{ paddingLeft: 8, paddingRight: 8, paddingTop: 6, paddingBottom: 6, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
         <div style={{ color: '#999999', fontSize: 14, fontFamily: 'Pretendard', fontWeight: '500', lineHeight: '23px', wordWrap: 'break-word' }}>

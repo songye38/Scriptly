@@ -9,12 +9,10 @@ import Toggle from "../BasicComponents/Toggle";
 
 const ChatComponent = ({ projectID, studyQuestions }) => {
   const [inputValue, setInputValue] = useState(""); // 사용자 입력 값
-  const [messages, setMessages] = useState([]); // 사용자 메시지
-  const [assistantMessages, setAssistantMessages] = useState([]); // OpenAI 답변
+  const [conversation, setConversation] = useState([]); // 사용자 및 AI 메시지 순서 저장
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [isDetailedView, setIsDetailedView] = useState(true); // 토글 상태
   const messageContainerRef = useRef(null); // 메시지와 답변을 감싸는 div에 대한 ref
-  
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -36,12 +34,13 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
 
   const handleAskQuestion = async () => {
     if (!inputValue) return;
-
+  
+    // 사용자 메시지 추가
     const userMessage = { role: "user", content: inputValue };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
-
+    setConversation((prevConversation) => [...prevConversation, userMessage]);
+  
     setLoading(true);
-
+  
     try {
       const res = await fetch("/api/openai", {
         method: "POST",
@@ -57,13 +56,15 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           ],
         }),
       });
-
+  
       const data = await res.json();
+  
+      // OpenAI의 답변 추가
       const assistantMessage = { role: "assistant", content: data.answer };
-      setAssistantMessages((prevMessages) => [...prevMessages, assistantMessage]);
-
+      setConversation((prevConversation) => [...prevConversation, assistantMessage]);
+  
       const { title, content } = extractTitleAndContent(data.answer);
-
+  
       const { error } = await supabase.from("study_questions").insert([
         {
           project_id: projectID,
@@ -72,88 +73,89 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           answer_content: content,
         },
       ]);
-
+  
       if (error) console.error("Error saving to Supabase:", error);
-
-      setLoading(false);
     } catch (error) {
       console.error("Error with OpenAI API:", error);
+    } finally {
       setLoading(false);
+      setInputValue(""); // 입력 필드 초기화
     }
-
-    setInputValue("");
   };
+  
+  useEffect(() => {
+  console.log("Updated conversation:", conversation);
+}, [conversation]);
 
   // 메시지와 답변 섹션의 스크롤을 아래로 내리기
+  // useEffect(() => {
+  //   messageContainerRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [conversation]);
+
   useEffect(() => {
-    messageContainerRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, assistantMessages]);
+    setTimeout(() => {
+      if (messageContainerRef.current) {
+        messageContainerRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 0);
+  }, [conversation]);
+  
+
 
   // 대화모드 on일 때 노출
   const renderDetailedView = () => (
     <>
-      {/* Study Questions */}
-
-        {studyQuestions.map((question, idx) => (
-            <div key={idx} style={{ marginBottom: "40px"}}>
-            <div style={{ textAlign: "right" }}>
-                <UserMsg msg={question.question} />
-            </div>
-            <div style={{ textAlign: "left" }}>
-                <ResultBasic question={question} />
-            </div>
-            </div>
-        ))}
-
-
-      {/* 사용자 메시지 및 OpenAI 답변 영역 */}
-      <div ref={messageContainerRef} style={{ overflowY: "auto", maxHeight: "60vh" }}>
-        {/* 사용자 메시지 */}
-        {messages.map((msg, idx) => (
-          <div key={idx} style={{ textAlign: "right", marginBottom: "20px" }}>
-            <UserMsg msg={msg.content} />
+      {/* 기존 질문 목록 렌더링 */}
+      {studyQuestions.map((question, idx) => (
+        <div key={idx} style={{ marginBottom: "40px" }}>
+          <div style={{ textAlign: "right" }}>
+            <UserMsg msg={question.question} />
           </div>
-        ))}
-
-        {/* OpenAI 답변 */}
-        {assistantMessages.map((msg, idx) => {
-          const { title, content } = extractTitleAndContent(msg.content);
-          const answer = { answer_title: title, answer_content: content };
-
-          return (
-            <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
-              <ResultBasic question={answer} />
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-
-  // 대화모드 off일때
-  const renderSummaryView = () => (
-    <>
-    <div
+          <div style={{ textAlign: "left" }}>
+            <ResultBasic question={question} />
+          </div>
+        </div>
+      ))}
+  
+      {/* 대화 메시지 렌더링 */}
+      <div ref={messageContainerRef} style={{ overflowY: "auto", maxHeight: "60vh" }}>
+        {conversation.map((msg, idx) => (
+          <div
+            key={idx}
             style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "row",
-              gap: "6px",
+              textAlign: msg.role === "user" ? "right" : "left",
               marginBottom: "20px",
             }}
           >
-        <MyInput
-            value={inputValue}
-            onChange={handleInputChange}
-            placeholder="제목을 입력해주세요."
-                />
-        <Button
-            onClick={handleAskQuestion}
-            title={"OK"}
-            type="primary"
-            disabled={loading || !isDetailedView} // 이 라인도 필요 없지만 유지 가능
-        />
-    </div>
+            {msg.role === "user" ? (
+              <UserMsg msg={msg.content} />
+            ) : (
+              <ResultBasic
+                question={{answer_title: extractTitleAndContent(msg.content).title,answer_content: extractTitleAndContent(msg.content).content}}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+  
+
+  // 대화모드 off일 때
+  const renderSummaryView = () => (
+    <>
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          gap: "6px",
+          marginBottom: "20px",
+        }}
+      >
+        <MyInput value={inputValue} onChange={handleInputChange} placeholder="제목을 입력해주세요." />
+        <Button onClick={handleAskQuestion} title={"OK"} type="primary" disabled={loading || !isDetailedView} />
+      </div>
       {/* Study Questions */}
       {studyQuestions.map((question, idx) => (
         <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
@@ -162,22 +164,19 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
       ))}
 
       {/* OpenAI 답변 */}
-      {assistantMessages.map((msg, idx) => {
-        const { title, content } = extractTitleAndContent(msg.content);
-        const answer = { answer_title: title, answer_content: content };
-
-        return (
+      {conversation
+        .filter((msg) => msg.role === "assistant")
+        .map((msg, idx) => (
           <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
-            <ResultSummary question={answer} />
+            <ResultSummary question={extractTitleAndContent(msg.content)} />
           </div>
-        );
-      })}
+        ))}
     </>
   );
 
   return (
-    <div style={{ height: "100vh", overflow: "hidden" }}>
-      <div style={{ overflow: "auto", height: isDetailedView ? "70%" : "90%", width: "80%" }}>
+    <div style={{ height: "100%", overflow: "hidden" }}>
+      <div style={{ overflow: "auto", height: isDetailedView ? "70%" : "90%", width: "100%" }}>
         {isDetailedView ? renderDetailedView() : renderSummaryView()}
       </div>
 
@@ -192,29 +191,22 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           gap: "8px",
         }}
       >
-        {/* 입력 필드와 버튼 */}
-        {isDetailedView && ( // 토글이 켜져 있을 때만 렌더링
+        {isDetailedView && (
           <div
             style={{
-              width: "100%",
+              width: "90%",
               display: "flex",
-              position: "absolute",
-              bottom: "20px",
               flexDirection: "row",
               gap: "8px",
               marginBottom: "20px",
             }}
           >
-            <MyInput
-              value={inputValue}
-              onChange={handleInputChange}
-              placeholder="Ask a question..."
-            />
+            <MyInput value={inputValue} onChange={handleInputChange} placeholder="Ask a question..." />
             <Button
               onClick={handleAskQuestion}
-              title={loading ? "Loading..." : "Ask"}
+              title={loading ? "생성중✨" : "Ask"}
               type="primary"
-              disabled={loading || !isDetailedView} // 이 라인도 필요 없지만 유지 가능
+              disabled={loading || !isDetailedView}
             />
           </div>
         )}

@@ -4,10 +4,9 @@ import ProjectName from '../../src/Components/BasicComponents/ProjectName';
 import { useState } from 'react';
 import ProjectHeader from '../../src/Components/ComplexComponents/ProjectHeader';
 import ChatComponent from '../../src/Components/ComplexComponents/ChatComponent';
-
+import PromptOption from '../../src/Components/BasicComponents/\bPromptOption';
 
 const ProjectDetail = ({ project, studyQuestions }) => {
-
     const [text, setText] = useState('');
     const router = useRouter();
     const { project_id } = router.query; // URL에서 project_id를 가져옴
@@ -19,14 +18,14 @@ const ProjectDetail = ({ project, studyQuestions }) => {
     return (
         <div style={{}}>
             <div style={{ 
-            display: 'flex', 
-            flexDirection: 'row', 
-            width: '100%', 
-            height: '100vh', 
-            alignItems: 'flex-start', 
-            gap: '20px', 
-            boxSizing: 'border-box'  // 모든 요소에 box-sizing을 border-box로 설정
-          }}>
+              padding : '10px',
+              display: 'flex', 
+              flexDirection: 'row', 
+              width: '100%', 
+              height: '100vh', 
+              alignItems: 'flex-start', 
+              gap: '20px', 
+            }}>
               
               {/* [왼쪽 사이드] 프로젝트 제목과 노트 섹션 */}
               <div style={{
@@ -44,32 +43,35 @@ const ProjectDetail = ({ project, studyQuestions }) => {
               <div style={{
                 display: 'flex', 
                 flexDirection: 'column', 
-                overflowY:'hidden',
+                overflow:'hidden',
                 width: '80%', 
-                height: '100vh', 
+                height: '100%', 
                 boxSizing: 'border-box',  // 오른쪽 영역에도 box-sizing 적용
-
               }}>
                 {/* (섹션1) 상단의 헤더 부분 */}
                 <ProjectHeader />
           
                 {/* (섹션2) 대화 섹션 */}
-                <div style={{
-                    width: '100%',
-                    padding : '20px',
-                    flex: 1, 
-                    overflowY: 'auto',
-                    boxSizing: 'border-box',  // 대화 영역에도 box-sizing 적용
-                }}>
-                  <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
+                <div style={{display:'flex',flexDirection:'row',gap:'20px',height:'100vh'}}>
+                  <div style={{
+                      width: '75%',
+                  }}>
+                    <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
+                  </div>
+                  <div style={{paddingLeft:'20px',paddingBottom:'20px',width:'25%',display:'flex',flexDirection:'column',gap:'8px',overflow:'scroll',borderLeft: '1px solid #ccc',}}>
+                    <PromptOption title="Zero-Shot Prompting " description="간단하고 빠른 답변이 필요할 때" />
+                    <PromptOption title="Few-Shot Prompting  " description="특정 문제를 반복적으로 해결할 때" />
+                    <PromptOption title="Generated Knowledge Prompt " description="새로운 개념이나 지식에 대한 설명이 필요할 때" />
+                    <PromptOption title="Directional Stimulus Prompting " description="특정 조건이나 방향을 제시하며 답변을 이끌어낼 때" />
+                    <PromptOption title="Chain-of-Thought Prompting " description="문제를 해결하는 과정이 중요한 경우" />
+                    <PromptOption title="Self-Consistency " description="여러 해결책 중 가장 적합한 방법을 선택할 때" />
+                    <PromptOption title="Tree of Thoughts " description="문제를 단계별로 분해하여 해결해야 할 때" />
+                    <PromptOption title="Active-Prompt " description="상호작용을 통해 점진적으로 답을 보완하고 싶을 때" />
+                  </div>
                 </div>
               </div>
           </div>
-
         </div>
-
-          
-
     );
 };
 
