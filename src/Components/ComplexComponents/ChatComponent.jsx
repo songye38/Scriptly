@@ -187,8 +187,8 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           display: "flex",
           position: "absolute",
           bottom: "20px",
-          flexDirection: "row",
-          gap: "8px",
+          flexDirection: "column",
+          gap: "4px",
         }}
       >
         {isDetailedView && (
