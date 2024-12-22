@@ -8,7 +8,8 @@ import ResultSummary from "./ResultSummary";
 import Toggle from "../BasicComponents/Toggle";
 import PromptOption from "../BasicComponents/\bPromptOption";
 
-const ChatComponent = ({ projectID, studyQuestions }) => {
+const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
+  const [newNote, setNewNote] = useState('');
   const [inputValue, setInputValue] = useState(""); // 사용자 입력 값
   const [conversation, setConversation] = useState([]); // 사용자 및 AI 메시지 순서 저장
   const [loading, setLoading] = useState(false); // 로딩 상태
@@ -30,11 +31,14 @@ const handleCheckboxChange = (question) => {
     if (prev.includes(question)) {
       return prev.filter((q) => q !== question); // 이미 선택된 경우 제거
     }
-    console.log("어떤 것들이 선택되었나?",...prev)
+    //console.log("어떤 것들이 선택되었나?",...prev)
     return [...prev, question]; // 선택 항목 추가
   });
 };
 
+useEffect(() => {
+  console.log("현재 선택된 질문들:", selectedQuestions);
+}, [selectedQuestions]);
 
   const extractTitleAndContent = (markdown) => {
     const titleMatch = markdown.match(/^#\s*(.*)/m);
@@ -47,6 +51,7 @@ const handleCheckboxChange = (question) => {
   };
 
   const handleMakeChapter = async () => {
+    
     if (!inputValue) {
       alert("프로젝트 제목을 입력하세요.");
       return;
@@ -92,8 +97,7 @@ const handleCheckboxChange = (question) => {
       }
   
       alert("프로젝트와 관련 질문이 성공적으로 저장되었습니다.");
-      setInputValue(""); // 제목 초기화
-      setSelectedQuestions([]); // 선택된 질문 초기화
+
     } catch (err) {
       console.error("Unexpected error:", err);
       alert("오류가 발생했습니다.");

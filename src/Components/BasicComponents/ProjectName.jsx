@@ -5,7 +5,7 @@ const ProjectName = ({title}) => {
     <div
       style={{
         width: "305px",
-        height: "100%",
+        height: "auto",
         paddingTop: 10,
         paddingBottom: 30,
         paddingLeft: 10,

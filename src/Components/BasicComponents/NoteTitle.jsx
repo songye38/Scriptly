@@ -11,7 +11,7 @@ const NoteTitle = ({ title, isChecked }) => {
 
       {/* 제목 영역 */}
      
-        <div style={{ flex: '1 1 0', color: 'black', fontSize: '16px', fontFamily: 'Pretendard', fontWeight: '700', wordWrap: 'break-word' }}>
+        <div style={{ flex: '1 1 0', color: 'black', fontSize: '16px', fontFamily: 'Pretendard', fontWeight: '500', wordWrap: 'break-word' }}>
           {title}
       </div>
     </div>
