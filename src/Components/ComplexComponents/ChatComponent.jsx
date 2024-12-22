@@ -7,6 +7,7 @@ import ResultBasic from "./ResultBasic";
 import ResultSummary from "./ResultSummary";
 import Toggle from "../BasicComponents/Toggle";
 import PromptOption from "../BasicComponents/\bPromptOption";
+import prompts from "../../utils/prompts";
 
 const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
   const [selectedOption, setSelectedOption] = useState('option1');  // 선택된 옵션을 저장할 상태
@@ -17,6 +18,7 @@ const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
   const [isDetailedView, setIsDetailedView] = useState(true); // 토글 상태
   const messageContainerRef = useRef(null); // 메시지와 답변을 감싸는 div에 대한 ref
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const selectedPrompt = prompts[selectedOption];
 
 
 
@@ -130,8 +132,7 @@ useEffect(() => {
           messages: [
             {
               role: "system",
-              content:
-                "You are a helpful assistant. Please always respond in Korean and explain with code examples. Your response must include a title using `#` for the main title, followed by subheadings using `##` as needed. The response should be formatted in markdown, and include code blocks using triple backticks (```).",
+              content: selectedPrompt.content,
             },
           ],
         }),
