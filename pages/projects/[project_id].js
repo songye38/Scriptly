@@ -85,6 +85,7 @@ export const getServerSideProps = async ({ params }) => {
       .select(`
         *,
         study_questions (
+          id,
           question,
           answer_title,
           answer_content,

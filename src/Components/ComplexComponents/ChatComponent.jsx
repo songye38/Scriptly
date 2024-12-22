@@ -14,6 +14,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [isDetailedView, setIsDetailedView] = useState(true); // 토글 상태
   const messageContainerRef = useRef(null); // 메시지와 답변을 감싸는 div에 대한 ref
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -22,6 +23,18 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   const handleToggleChange = (checked) => {
     setIsDetailedView(checked);
   };
+
+  // 체크박스 상태 변경 핸들러
+const handleCheckboxChange = (question) => {
+  setSelectedQuestions((prev) => {
+    if (prev.includes(question)) {
+      return prev.filter((q) => q !== question); // 이미 선택된 경우 제거
+    }
+    console.log("어떤 것들이 선택되었나?",...prev)
+    return [...prev, question]; // 선택 항목 추가
+  });
+};
+
 
   const extractTitleAndContent = (markdown) => {
     const titleMatch = markdown.match(/^#\s*(.*)/m);
@@ -32,6 +45,62 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
 
     return { title, content };
   };
+
+  const handleMakeChapter = async () => {
+    if (!inputValue) {
+      alert("프로젝트 제목을 입력하세요.");
+      return;
+    }
+  
+    if (selectedQuestions.length === 0) {
+      alert("저장할 질문을 선택하세요.");
+      return;
+    }
+  
+    try {
+      // Step 1: notes 테이블에 새 note 생성
+      const { data: noteData, error: noteError } = await supabase
+        .from("notes")
+        .insert([{ 
+          title: inputValue, 
+          project_id : projectID, 
+        }])
+        .select();
+  
+      if (noteError) {
+        console.error("Error creating note:", noteError);
+        alert("노트 생성에 실패했습니다.");
+        return;
+      }
+  
+      const noteId = noteData[0].id;
+  
+      // Step 2: note_questions 테이블에 다대다 관계 삽입
+      const noteQuestionsData = selectedQuestions.map((q) => ({
+        note_id: noteId,
+        question_id: q.id,
+      }));
+  
+      const { error: linkError } = await supabase
+        .from("note_questions")
+        .insert(noteQuestionsData);
+  
+      if (linkError) {
+        console.error("Error linking notes and questions:", linkError);
+        alert("질문 연결에 실패했습니다.");
+        return;
+      }
+  
+      alert("프로젝트와 관련 질문이 성공적으로 저장되었습니다.");
+      setInputValue(""); // 제목 초기화
+      setSelectedQuestions([]); // 선택된 질문 초기화
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("오류가 발생했습니다.");
+    }
+  };
+  
+  
 
   const handleAskQuestion = async () => {
     if (!inputValue) return;
@@ -87,11 +156,6 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   useEffect(() => {
   console.log("Updated conversation:", conversation);
 }, [conversation]);
-
-  // 메시지와 답변 섹션의 스크롤을 아래로 내리기
-  // useEffect(() => {
-  //   messageContainerRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [conversation]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -193,12 +257,16 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
         }}
       >
         <MyInput value={inputValue} onChange={handleInputChange} placeholder="제목을 입력해주세요." />
-        <Button onClick={handleAskQuestion} title={"OK"} type="primary" disabled={loading || !isDetailedView} />
+        <Button onClick={handleMakeChapter} title={"OK"} type="primary" disabled={loading || !isDetailedView} />
       </div>
       {/* Study Questions */}
       {studyQuestions.map((question, idx) => (
         <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
-          <ResultSummary question={question} />
+          <ResultSummary
+          question={question}
+          onCheckboxChange={handleCheckboxChange}
+          isChecked={selectedQuestions.includes(question)}
+        />
         </div>
       ))}
   
