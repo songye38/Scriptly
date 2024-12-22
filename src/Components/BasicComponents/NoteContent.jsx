@@ -5,9 +5,9 @@ const NoteContent = ({ content }) => {
     <div
       style={{
         color: '#4C4B4B',
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: 'Pretendard',
-        fontWeight: '500',
+        fontWeight: '400',
         wordWrap: 'break-word',
       }}
     >
