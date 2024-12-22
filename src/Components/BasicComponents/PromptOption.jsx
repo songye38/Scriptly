@@ -1,19 +1,21 @@
 import React from 'react';
 
-const PromptOption = ({ title, description }) => {
+const PromptOption = ({ title, description, selected, onClick }) => {
     return (
         <div
+            onClick={onClick}
             style={{
                 width: '100%',
                 height: 'auto',
                 padding: 10,
                 borderRadius: 8,
-                border: '1.60px #EAEEFD solid',
+                border: `1.6px solid ${selected ? '#5670F1' : '#EAEEFD'}`, // 선택되었으면 테두리 색상이 파란색
                 flexDirection: 'column',
                 justifyContent: 'flex-start',
                 alignItems: 'flex-start',
                 gap: 16,
-                display: 'inline-flex'
+                display: 'inline-flex',
+                cursor: 'pointer' // 클릭 가능하게 처리
             }}
         >
             {/* Title */}

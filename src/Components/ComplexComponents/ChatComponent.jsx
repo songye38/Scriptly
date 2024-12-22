@@ -9,6 +9,7 @@ import Toggle from "../BasicComponents/Toggle";
 import PromptOption from "../BasicComponents/\bPromptOption";
 
 const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
+  const [selectedOption, setSelectedOption] = useState('option1');  // 선택된 옵션을 저장할 상태
   const [newNote, setNewNote] = useState('');
   const [inputValue, setInputValue] = useState(""); // 사용자 입력 값
   const [conversation, setConversation] = useState([]); // 사용자 및 AI 메시지 순서 저장
@@ -16,6 +17,12 @@ const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
   const [isDetailedView, setIsDetailedView] = useState(true); // 토글 상태
   const messageContainerRef = useRef(null); // 메시지와 답변을 감싸는 div에 대한 ref
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+
+
+
+  const handleOptionClick = (optionId) => {
+    setSelectedOption(optionId);  // 클릭된 옵션의 ID를 상태에 저장
+};
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -103,7 +110,6 @@ useEffect(() => {
       alert("오류가 발생했습니다.");
     }
   };
-  
   
 
   const handleAskQuestion = async () => {
@@ -230,14 +236,54 @@ useEffect(() => {
           maxHeight: "100vh",
         }}
       >
-        <PromptOption title="Zero-Shot Prompting" description="간단하고 빠른 답변이 필요할 때" />
-        <PromptOption title="Few-Shot Prompting" description="특정 문제를 반복적으로 해결할 때" />
-        <PromptOption title="Generated Knowledge Prompt" description="새로운 개념이나 지식에 대한 설명이 필요할 때" />
-        <PromptOption title="Directional Stimulus Prompting" description="특정 조건이나 방향을 제시하며 답변을 이끌어낼 때" />
-        <PromptOption title="Chain-of-Thought Prompting" description="문제를 해결하는 과정이 중요한 경우" />
-        <PromptOption title="Self-Consistency" description="여러 해결책 중 가장 적합한 방법을 선택할 때" />
-        <PromptOption title="Tree of Thoughts" description="문제를 단계별로 분해하여 해결해야 할 때" />
-        <PromptOption title="Active-Prompt" description="상호작용을 통해 점진적으로 답을 보완하고 싶을 때" />
+        <PromptOption 
+          title="Zero-Shot Prompting" 
+          description="간단하고 빠른 답변이 필요할 때" 
+          selected={selectedOption === 'option1'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option1')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Few-Shot Prompting" 
+          description="특정 문제를 반복적으로 해결할 때" 
+          selected={selectedOption === 'option2'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option2')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Generated Knowledge Prompt" 
+          description="새로운 개념이나 지식에 대한 설명이 필요할 때" 
+          selected={selectedOption === 'option3'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option3')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Directional Stimulus Prompting" 
+          description="특정 조건이나 방향을 제시하며 답변을 이끌어낼 때"
+          selected={selectedOption === 'option4'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option4')} // 클릭 시 selectedOption 상태 변경 
+        />
+        <PromptOption 
+          title="Chain-of-Thought Prompting" 
+          description="문제를 해결하는 과정이 중요한 경우" 
+          selected={selectedOption === 'option5'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option5')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Self-Consistency" 
+          description="여러 해결책 중 가장 적합한 방법을 선택할 때" 
+          selected={selectedOption === 'option6'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option6')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Tree of Thoughts" 
+          description="문제를 단계별로 분해하여 해결해야 할 때" 
+          selected={selectedOption === 'option7'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option7')} // 클릭 시 selectedOption 상태 변경
+        />
+        <PromptOption 
+          title="Active-Prompt" 
+          description="상호작용을 통해 점진적으로 답을 보완하고 싶을 때" 
+          selected={selectedOption === 'option8'} // selected는 선택된 ID와 비교해서 결정
+          onClick={() => handleOptionClick('option8')} // 클릭 시 selectedOption 상태 변경
+        />
       </div>
     </div>
   );

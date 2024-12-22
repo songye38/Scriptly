@@ -156,7 +156,7 @@ const ProjectDetail = ({ project, studyQuestions, notesWithQuestionTitles: initi
                 <Note 
                   key={note.id} 
                   title={note.title} 
-                  contentArray={noteQuestions.length > 0 ? noteQuestions.map(nq => nq.question_title) : ['질문 없음']} 
+                  contentArray={noteQuestions.length > 0 ? noteQuestions.map(nq => nq.question_title) : ['내용 없음']} 
                 />
               );
             })
