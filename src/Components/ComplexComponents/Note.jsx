@@ -6,7 +6,7 @@ const Note = ({ title, contentArray }) => {
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start',gap:'14px', padding:'16px' }}>
       {/* 제목 */}
-      <NoteTitle title={title}  isChecked={true}/>
+      <NoteTitle title={title}  isChecked={false}/>
 
       {/* NoteContent들을 감싸는 div */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
