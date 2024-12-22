@@ -207,7 +207,11 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
         .filter((msg) => msg.role === "assistant")
         .map((msg, idx) => (
           <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
-            <ResultSummary question={extractTitleAndContent(msg.content)} />
+            <ResultSummary                   
+            question={{
+                    answer_title: extractTitleAndContent(msg.content).title,
+                    answer_content: extractTitleAndContent(msg.content).content,
+                  }} />
           </div>
         ))}
     </div>
