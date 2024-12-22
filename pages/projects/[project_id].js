@@ -1,121 +1,185 @@
-import { supabase } from '../../src/utils/supabase'; // Supabase 클라이언트 불러오기
-import { useRouter } from 'next/router';  // Next.js의 useRouter 훅을 사용하여 동적 라우팅 처리
+import { useEffect, useState } from 'react';
+import { supabase } from '../../src/utils/supabase';
+import { useRouter } from 'next/router';
 import ProjectName from '../../src/Components/BasicComponents/ProjectName';
-import { useState } from 'react';
 import ProjectHeader from '../../src/Components/ComplexComponents/ProjectHeader';
 import ChatComponent from '../../src/Components/ComplexComponents/ChatComponent';
 import Note from '../../src/Components/ComplexComponents/Note';
-import { useEffect } from 'react';
 
-const ProjectDetail = ({ project, studyQuestions,notesWithQuestionTitles }) => {
-    const [notes, setNotesLocal] = useState([]); // 로컬 상태로 노트 저장
-    const [text, setText] = useState('');
-    const router = useRouter();
-    const { project_id } = router.query; // URL에서 project_id를 가져옴
-
-
+const ProjectDetail = ({ project, studyQuestions, notesWithQuestionTitles: initialNotes }) => {
+  const [notes, setNotes] = useState(initialNotes || []); 
+  const [text, setText] = useState('');
+  const router = useRouter();
+  const { project_id } = router.query;
 
   if (!project) {
-      return <div>프로젝트를 찾을 수 없습니다.</div>;
+    return <div>프로젝트를 찾을 수 없습니다.</div>;
   }
 
-//   useEffect(() => {
-//     // 노트를 Supabase에서 가져옵니다
-//     const fetchNotes = async () => {
-//         const { data, error } = await supabase
-//             .from("notes")
-//             .select("*")
-//             .eq("project_id", project.id);
-//         if (error) {
-//             console.error("노트 가져오기 실패", error);
-//         } else {
-//             console.log("최종 데이터",data);
-//             setNotesLocal(data); // 로컬 상태로 노트 설정
-//             setNotes(data); // 부모로 전달된 setNotes를 사용하여 상위 컴포넌트에서 상태 갱신
-//         }
-//     };
+  useEffect(() => {
+    // 실시간 노트 변경 구독
+    const notesChannel = supabase.channel('notes_channel')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notes' }, async (payload) => {
+        console.log('Notes 삽입:', payload);
+        const { data: updatedNote } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('id', payload.new.id)
+          .single();
+  
+        if (updatedNote) {
+          // 추가된 노트에 해당하는 note_questions 가져오기
+          const { data: noteQuestions, error: noteQuestionsError } = await supabase
+            .from('note_questions')
+            .select('*')
+            .eq('note_id', updatedNote.id);
+  
+          if (noteQuestionsError) {
+            console.error('note_questions 데이터를 가져오는 데 실패했습니다:', noteQuestionsError);
+            return;
+          }
+  
+          // note_questions에서 question_id를 기반으로 study_questions의 관련 데이터를 가져오기
+          const noteQuestionsWithTitles = await Promise.all(
+            noteQuestions.map(async (noteQuestion) => {
+              const { data: questionData, error: questionError } = await supabase
+                .from('study_questions')
+                .select('id, answer_title')
+                .eq('id', noteQuestion.question_id)
+                .single();
+  
+              if (questionError) {
+                console.error('study_questions 데이터를 가져오는 데 실패했습니다:', questionError);
+                return null;
+              }
+  
+              return {
+                ...noteQuestion,
+                question_title: questionData?.answer_title || '질문을 가져오지 못했습니다.',
+              };
+            })
+          );
+  
+          // note_questions와 관련된 질문들을 포함한 노트 업데이트
+          const noteWithQuestions = {
+            ...updatedNote,
+            note_questions: noteQuestionsWithTitles.filter(nq => nq !== null), // null 필터링
+          };
+  
+          // 중복된 노트를 추가하지 않도록 체크
+          setNotes((prevNotes) => {
+            if (!prevNotes.some(note => note.id === noteWithQuestions.id)) {
+              return [...prevNotes, noteWithQuestions];
+            }
+            return prevNotes; // 중복된 노트는 추가하지 않음
+          });
+        }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notes' }, async (payload) => {
+        console.log('Notes 업데이트:', payload);
+        const { data: updatedNote } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('id', payload.new.id)
+          .single();
+  
+        if (updatedNote) {
+          // 해당 노트의 note_questions를 가져오기
+          const { data: noteQuestions, error: noteQuestionsError } = await supabase
+            .from('note_questions')
+            .select('*')
+            .eq('note_id', updatedNote.id);
+  
+          if (noteQuestionsError) {
+            console.error('note_questions 데이터를 가져오는 데 실패했습니다:', noteQuestionsError);
+            return;
+          }
+  
+          // note_questions에서 question_id를 기반으로 study_questions의 관련 데이터를 가져오기
+          const noteQuestionsWithTitles = await Promise.all(
+            noteQuestions.map(async (noteQuestion) => {
+              const { data: questionData, error: questionError } = await supabase
+                .from('study_questions')
+                .select('id, answer_title')
+                .eq('id', noteQuestion.question_id)
+                .single();
+  
+              if (questionError) {
+                console.error('study_questions 데이터를 가져오는 데 실패했습니다:', questionError);
+                return null;
+              }
+  
+              return {
+                ...noteQuestion,
+                question_title: questionData?.answer_title || '질문을 가져오지 못했습니다.',
+              };
+            })
+          );
+  
+          // note_questions와 관련된 질문들을 포함한 노트 업데이트
+          const noteWithQuestions = {
+            ...updatedNote,
+            note_questions: noteQuestionsWithTitles.filter(nq => nq !== null), // null 필터링
+          };
+  
+          setNotes((prevNotes) => {
+            const otherNotes = prevNotes.filter((note) => note.id !== noteWithQuestions.id);
+            return [...otherNotes, noteWithQuestions];
+          });
+        }
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notes' }, (payload) => {
+        console.log('Notes 삭제:', payload);
+        setNotes((prevNotes) => prevNotes.filter((note) => note.id !== payload.old.id));
+      })
+      .subscribe();
+  
+    // Cleanup 구독
+    return () => {
+      notesChannel.unsubscribe();
+    };
+  }, []);
+  
 
-//     fetchNotes();
-// }, [project.id]);
-
-
-
-    return (
-            <div style={{ 
-              padding : '10px',
-              display: 'flex', 
-              flexDirection: 'row', 
-              width: '100%', 
-              height: '100vh', 
-              alignItems: 'flex-start', 
-              gap: '20px', 
-              scroll:'hidden',
-            }}>
-              
-              {/* [왼쪽 사이드] 프로젝트 제목과 노트 섹션 */}
-              <div style={{
-                width: '20%', 
-                height: '100vh', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                borderRight: '1px solid #ccc',
-                boxSizing: 'border-box'  // 왼쪽 영역에도 box-sizing 적용
-              }}>
-                <ProjectName title={project.name} />
-                        {/* 노트 렌더링 섹션 */}
-                <div style={{  height:'100%',display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px',overflow:'scroll',marginBottom:'20px' }}>
-                  {notesWithQuestionTitles.map((note) => (
-                    <Note
-                      key={note.id}
-                      title={note.title}
-                      contentArray={note.note_questions.map(nq => nq.question_title)}
-                    />
-                  ))}
-                </div>
-              </div>
-                      
-              {/* [오른쪽 사이드] 오른쪽의 대화 섹션 */}
-              <div style={{
-                width: "78%",
-                display: 'flex', 
-                flexDirection: 'column', 
-                overflow:'hidden',
-                height: '100vh', 
-                boxSizing: 'border-box',  // 오른쪽 영역에도 box-sizing 적용
-              }}>
-                <div
-                style={{
-                  textAlign: "right", // 내부 콘텐츠를 오른쪽 정렬
-                  width: "78%", // 너비를 80%로 설정
-                  position: "fixed", // 화면에 고정
-                  top: 0, // 화면 상단
-                  right: 0, // 화면 오른쪽
-                  zIndex: 1000, // 다른 요소보다 위에 표시
-                  backgroundColor: "white", // 배경 색
-                  padding: "8px", // 패딩 설정
-                }}
-                >
-                  <ProjectHeader />
-                </div>
-                {/* (섹션2) 대화 섹션 */}
-                <div style={{width : '100%',display:'flex',flexDirection:'row',gap:'20px',height:'100vh',top:'80px',position:'relative'}}>
-                  <div style={{
-                      width: '100%',
-                  }}>
-                    <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
-                    console.log(notesWithQuestionTitles);
-                  </div>
-                </div>
-              </div>
-          </div>
-    );
+  // 렌더링 시 notes가 배열인지 체크하고, 그에 맞는 처리 추가
+  return (
+    <div style={{ padding: '10px', display: 'flex', flexDirection: 'row', width: '100%', height: '100vh', alignItems: 'flex-start', gap: '20px' }}>
+      <div style={{ width: '20%', height: '100vh', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
+        <ProjectName title={project.name} />
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px', overflow: 'scroll', marginBottom: '20px' }}>
+          {/* notes가 배열인지 확인하고 map() 호출 */}
+          {Array.isArray(notes) && notes.length > 0 ? (
+            notes.map((note) => {
+              // note에 note_questions이 없으면 빈 배열로 처리
+              const noteQuestions = note.note_questions || [];
+              return (
+                <Note 
+                  key={note.id} 
+                  title={note.title} 
+                  contentArray={noteQuestions.length > 0 ? noteQuestions.map(nq => nq.question_title) : ['질문 없음']} 
+                />
+              );
+            })
+          ) : (
+            <div>노트가 없습니다.</div>
+          )}
+        </div>
+      </div>
+      <div style={{ width: '78%', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100vh' }}>
+        <div style={{ textAlign: 'right', position: 'fixed', top: 0, right: 0, zIndex: 1000, backgroundColor: 'white', padding: '8px' }}>
+          <ProjectHeader />
+        </div>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'row', gap: '20px', height: '100vh', top: '80px', position: 'relative' }}>
+          <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// getServerSideProps를 이용하여 서버 사이드에서 데이터를 가져옵니다.
 export const getServerSideProps = async ({ params }) => {
   const { project_id } = params;
 
-  // Supabase에서 project_id에 해당하는 프로젝트 정보와 관련된 study_questions과 notes를 가져옵니다.
   const { data: projectWithNotes, error: projectError } = await supabase
     .from('projects')
     .select(`
@@ -135,26 +199,23 @@ export const getServerSideProps = async ({ params }) => {
           question_id
         )
       )
-    `)  // 프로젝트와 관련된 모든 study_questions, notes, note_questions 테이블의 데이터를 포함
+    `)
     .eq('id', project_id);
 
   if (projectError) {
     console.error('프로젝트를 가져오는 데 실패했습니다:', projectError);
-    return { notFound: true };  // 프로젝트가 없으면 404 페이지 표시
+    return { notFound: true };
   }
 
-  // 노트의 질문들을 가져와서 question_id에 맞는 question_title을 추가하는 처리
   const notesWithQuestionTitles = await Promise.all(
     projectWithNotes[0]?.notes?.map(async (note) => {
-      // note_questions에 대해서 각 question_id를 study_questions에서 질문 제목을 가져옵니다
       const noteQuestionsWithTitles = await Promise.all(
         note.note_questions.map(async (noteQuestion) => {
-          // note_questions의 question_id를 통해 study_questions에서 question_title을 가져옵니다
           const { data: questionData, error: questionError } = await supabase
             .from('study_questions')
             .select('answer_title')
             .eq('id', noteQuestion.question_id)
-            .single();  // single()을 사용하여 하나의 데이터만 반환 받음
+            .single();
 
           if (questionError) {
             console.error('질문 데이터를 가져오는 데 실패했습니다:', questionError);
@@ -175,17 +236,13 @@ export const getServerSideProps = async ({ params }) => {
     })
   );
 
-  // 데이터 반환
   return {
     props: {
-      project: projectWithNotes[0] || null,  // 첫 번째 프로젝트 데이터를 반환
-      studyQuestions: projectWithNotes[0]?.study_questions || [],  // 해당 프로젝트의 study_questions 배열을 반환
-      notesWithQuestionTitles: notesWithQuestionTitles || [],  // 처리된 노트 데이터 반환
+      project: projectWithNotes[0] || null,
+      studyQuestions: projectWithNotes[0]?.study_questions || [],
+      notesWithQuestionTitles: notesWithQuestionTitles || [],
     },
   };
 };
 
-
-
-  
 export default ProjectDetail;
