@@ -9,9 +9,8 @@ import Toggle from "../BasicComponents/Toggle";
 import PromptOption from "../BasicComponents/\bPromptOption";
 import prompts from "../../utils/prompts";
 
-const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
+const ChatComponent = ({ projectID, studyQuestions }) => {
   const [selectedOption, setSelectedOption] = useState('option1');  // 선택된 옵션을 저장할 상태
-  const [newNote, setNewNote] = useState('');
   const [inputValue, setInputValue] = useState(""); // 사용자 입력 값
   const [conversation, setConversation] = useState([]); // 사용자 및 AI 메시지 순서 저장
   const [loading, setLoading] = useState(false); // 로딩 상태
@@ -35,15 +34,20 @@ const ChatComponent = ({ projectID, studyQuestions,setNotes }) => {
   };
 
   // 체크박스 상태 변경 핸들러
-const handleCheckboxChange = (question) => {
-  setSelectedQuestions((prev) => {
-    if (prev.includes(question)) {
-      return prev.filter((q) => q !== question); // 이미 선택된 경우 제거
-    }
-    //console.log("어떤 것들이 선택되었나?",...prev)
-    return [...prev, question]; // 선택 항목 추가
-  });
-};
+  const handleCheckboxChange = (question) => {
+    setSelectedQuestions((prev) => {
+      const isAlreadySelected = prev.some((q) => q.id === question.id); // question 객체의 id로 비교
+  
+      if (isAlreadySelected) {
+        // 이미 선택된 경우 해당 question 객체 제거
+        return prev.filter((q) => q.id !== question.id);
+      } else {
+        // 선택되지 않은 경우 question 객체 추가
+        return [...prev, question];
+      }
+    });
+  };
+  
 
 useEffect(() => {
   console.log("현재 선택된 질문들:", selectedQuestions);
@@ -314,10 +318,11 @@ useEffect(() => {
       {studyQuestions.map((question, idx) => (
         <div key={idx} style={{ textAlign: "left", marginBottom: "20px" }}>
           <ResultSummary
-          question={question}
-          onCheckboxChange={handleCheckboxChange}
-          isChecked={selectedQuestions.includes(question)}
-        />
+            key={question.id}
+            question={question}
+            onCheckboxChange={handleCheckboxChange}
+            isChecked={selectedQuestions.some((q) => q.id === question.id)} 
+          />
         </div>
       ))}
   
