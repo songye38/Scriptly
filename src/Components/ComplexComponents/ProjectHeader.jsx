@@ -4,7 +4,7 @@ import Logo from '../BasicComponents/Logo'
 
 function ProjectHeader() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <ProjectTab />
         <Logo />
   </div>

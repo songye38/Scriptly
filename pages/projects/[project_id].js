@@ -16,7 +16,6 @@ const ProjectDetail = ({ project, studyQuestions }) => {
     }
 
     return (
-        <div style={{}}>
             <div style={{ 
               padding : '10px',
               display: 'flex', 
@@ -25,12 +24,13 @@ const ProjectDetail = ({ project, studyQuestions }) => {
               height: '100vh', 
               alignItems: 'flex-start', 
               gap: '20px', 
+              scroll:'hidden',
             }}>
               
               {/* [왼쪽 사이드] 프로젝트 제목과 노트 섹션 */}
               <div style={{
                 width: '20%', 
-                height: '100%', 
+                height: '100vh', 
                 display: 'flex', 
                 flexDirection: 'row', 
                 borderRight: '1px solid #ccc',
@@ -41,37 +41,37 @@ const ProjectDetail = ({ project, studyQuestions }) => {
                       
               {/* [오른쪽 사이드] 오른쪽의 대화 섹션 */}
               <div style={{
+                width: "78%",
                 display: 'flex', 
                 flexDirection: 'column', 
                 overflow:'hidden',
-                width: '80%', 
-                height: '100%', 
+                height: '100vh', 
                 boxSizing: 'border-box',  // 오른쪽 영역에도 box-sizing 적용
               }}>
-                {/* (섹션1) 상단의 헤더 부분 */}
-                <ProjectHeader />
-          
+                <div
+                style={{
+                  textAlign: "right", // 내부 콘텐츠를 오른쪽 정렬
+                  width: "78%", // 너비를 80%로 설정
+                  position: "fixed", // 화면에 고정
+                  top: 0, // 화면 상단
+                  right: 0, // 화면 오른쪽
+                  zIndex: 1000, // 다른 요소보다 위에 표시
+                  backgroundColor: "white", // 배경 색
+                  padding: "8px", // 패딩 설정
+                }}
+                >
+                  <ProjectHeader />
+                </div>
                 {/* (섹션2) 대화 섹션 */}
-                <div style={{display:'flex',flexDirection:'row',gap:'20px',height:'100vh'}}>
+                <div style={{width : '100%',display:'flex',flexDirection:'row',gap:'20px',height:'100vh',top:'80px',position:'relative'}}>
                   <div style={{
-                      width: '75%',
+                      width: '100%',
                   }}>
                     <ChatComponent projectID={project.id} studyQuestions={studyQuestions} />
-                  </div>
-                  <div style={{paddingLeft:'20px',paddingBottom:'20px',width:'25%',display:'flex',flexDirection:'column',gap:'8px',overflow:'scroll',borderLeft: '1px solid #ccc',}}>
-                    <PromptOption title="Zero-Shot Prompting " description="간단하고 빠른 답변이 필요할 때" />
-                    <PromptOption title="Few-Shot Prompting  " description="특정 문제를 반복적으로 해결할 때" />
-                    <PromptOption title="Generated Knowledge Prompt " description="새로운 개념이나 지식에 대한 설명이 필요할 때" />
-                    <PromptOption title="Directional Stimulus Prompting " description="특정 조건이나 방향을 제시하며 답변을 이끌어낼 때" />
-                    <PromptOption title="Chain-of-Thought Prompting " description="문제를 해결하는 과정이 중요한 경우" />
-                    <PromptOption title="Self-Consistency " description="여러 해결책 중 가장 적합한 방법을 선택할 때" />
-                    <PromptOption title="Tree of Thoughts " description="문제를 단계별로 분해하여 해결해야 할 때" />
-                    <PromptOption title="Active-Prompt " description="상호작용을 통해 점진적으로 답을 보완하고 싶을 때" />
                   </div>
                 </div>
               </div>
           </div>
-        </div>
     );
 };
 

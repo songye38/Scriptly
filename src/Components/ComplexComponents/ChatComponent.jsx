@@ -6,6 +6,7 @@ import UserMsg from "../BasicComponents/\bUserMsg";
 import ResultBasic from "./ResultBasic";
 import ResultSummary from "./ResultSummary";
 import Toggle from "../BasicComponents/Toggle";
+import PromptOption from "../BasicComponents/\bPromptOption";
 
 const ChatComponent = ({ projectID, studyQuestions }) => {
   const [inputValue, setInputValue] = useState(""); // 사용자 입력 값
@@ -95,58 +96,96 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
   useEffect(() => {
     setTimeout(() => {
       if (messageContainerRef.current) {
-        messageContainerRef.current.scrollIntoView({ behavior: "smooth" });
+        const rect = messageContainerRef.current.getBoundingClientRect();
+        const offset = 100; // 헤더 높이
+        window.scrollBy({
+          top: rect.top - offset,
+          behavior: "smooth",
+        });
       }
     }, 0);
   }, [conversation]);
   
-
-
   // 대화모드 on일 때 노출
   const renderDetailedView = () => (
-    <>
-      {/* 기존 질문 목록 렌더링 */}
-      {studyQuestions.map((question, idx) => (
-        <div key={idx} style={{ marginBottom: "40px" }}>
-          <div style={{ textAlign: "right" }}>
-            <UserMsg msg={question.question} />
-          </div>
-          <div style={{ textAlign: "left" }}>
-            <ResultBasic question={question} />
-          </div>
-        </div>
-      ))}
-  
-      {/* 대화 메시지 렌더링 */}
-      <div ref={messageContainerRef} style={{ overflowY: "auto", maxHeight: "60vh" }}>
-        {conversation.map((msg, idx) => (
-          <div
-            key={idx}
-            style={{
-              textAlign: msg.role === "user" ? "right" : "left",
-              marginBottom: "20px",
-            }}
-          >
-            {msg.role === "user" ? (
-              <UserMsg msg={msg.content} />
-            ) : (
-              <ResultBasic
-                question={{answer_title: extractTitleAndContent(msg.content).title,answer_content: extractTitleAndContent(msg.content).content}}
-              />
-            )}
+    <div style={{ display: "flex", flexDirection: "row", gap: "20px", height: "100%" }}>
+      {/* 질문과 답변 섹션 */}
+      <div style={{ flex: 3, overflowY: "auto", maxHeight: "100vh" }}>
+        {/* 기존 질문 목록 렌더링 */}
+        {studyQuestions.map((question, idx) => (
+          <div key={idx} style={{ marginBottom: "40px" }}>
+            <div style={{ textAlign: "right" }}>
+              <UserMsg msg={question.question} />
+            </div>
+            <div style={{ textAlign: "left" }}>
+              <ResultBasic question={question} />
+            </div>
           </div>
         ))}
-      </div>
-    </>
-  );
   
-
-  // 대화모드 off일 때
-  const renderSummaryView = () => (
-    <>
+        {/* 대화 메시지 렌더링 */}
+        <div ref={messageContainerRef}>
+          {conversation.map((msg, idx) => (
+            <div
+              key={idx}
+              style={{
+                textAlign: msg.role === "user" ? "right" : "left",
+                marginBottom: "20px",
+              }}
+            >
+              {msg.role === "user" ? (
+                <UserMsg msg={msg.content} />
+              ) : (
+                <ResultBasic
+                  question={{
+                    answer_title: extractTitleAndContent(msg.content).title,
+                    answer_content: extractTitleAndContent(msg.content).content,
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+  
+      {/* PromptOption 섹션 */}
       <div
         style={{
-          width: "100%",
+          flex: 1,
+          paddingLeft: "20px",
+          paddingBottom: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          overflowY: "auto",
+          borderLeft: "1px solid #ccc",
+          maxHeight: "100vh",
+        }}
+      >
+        <PromptOption title="Zero-Shot Prompting" description="간단하고 빠른 답변이 필요할 때" />
+        <PromptOption title="Few-Shot Prompting" description="특정 문제를 반복적으로 해결할 때" />
+        <PromptOption title="Generated Knowledge Prompt" description="새로운 개념이나 지식에 대한 설명이 필요할 때" />
+        <PromptOption title="Directional Stimulus Prompting" description="특정 조건이나 방향을 제시하며 답변을 이끌어낼 때" />
+        <PromptOption title="Chain-of-Thought Prompting" description="문제를 해결하는 과정이 중요한 경우" />
+        <PromptOption title="Self-Consistency" description="여러 해결책 중 가장 적합한 방법을 선택할 때" />
+        <PromptOption title="Tree of Thoughts" description="문제를 단계별로 분해하여 해결해야 할 때" />
+        <PromptOption title="Active-Prompt" description="상호작용을 통해 점진적으로 답을 보완하고 싶을 때" />
+      </div>
+    </div>
+  );
+  
+  // 대화모드 off일 때
+  const renderSummaryView = () => (
+    <div
+      style={{
+        width:'70%',
+        //margin: "0 auto",       // 중앙 정렬
+        padding: "20px",        // 내부 여백
+        boxSizing: "border-box" // 패딩 포함 박스 모델
+      }}
+    >
+      <div
+        style={{
           display: "flex",
           flexDirection: "row",
           gap: "6px",
@@ -162,7 +201,7 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
           <ResultSummary question={question} />
         </div>
       ))}
-
+  
       {/* OpenAI 답변 */}
       {conversation
         .filter((msg) => msg.role === "assistant")
@@ -171,32 +210,41 @@ const ChatComponent = ({ projectID, studyQuestions }) => {
             <ResultSummary question={extractTitleAndContent(msg.content)} />
           </div>
         ))}
-    </>
+    </div>
   );
+  
 
   return (
-    <div style={{ height: "100%", overflow: "hidden" }}>
-      <div style={{ overflow: "auto", height: isDetailedView ? "70%" : "90%", width: "100%" }}>
+
+    <div style={{ height: "80vh", overflow: "hidden", width: "100%" }}>
+      <div style={{ overflow: "auto", height: isDetailedView ? "85%" : "90%", width: "100%" }}>
         {isDetailedView ? renderDetailedView() : renderSummaryView()}
       </div>
+
 
       {/* 입력 필드와 버튼 */}
       <div
         style={{
-          width: "64%",
+          width: '55%',
+          position: "fixed", // 화면 하단에 고정
+          bottom: "20px",    // 화면 하단에서 20px 위
+          left: "50%",       // 화면 중앙에 위치
+          transform: "translateX(-50%)", // 정확히 중앙 정렬
           display: "flex",
-          position: "absolute",
-          bottom: "20px",
           flexDirection: "column",
           gap: "4px",
+          backgroundColor: "white",
+          padding: "20px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // 약간의 그림자 추가
+          borderRadius: "8px", // 둥근 모서리
         }}
       >
         {isDetailedView && (
           <div
             style={{
-              width: "90%",
               display: "flex",
               flexDirection: "row",
+              bottom:'20px',
               gap: "8px",
               marginBottom: "20px",
             }}
